@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭财务管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #4472C4;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            color: #4472C4;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            color: #333;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .card-subtitle {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .summary-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            color: #4472C4;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4472C4;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #4472C4;
+            color: white;
+        }
+
+        th {
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #e3f2fd;
+        }
+
+        .tab-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #666;
+            border: 2px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: #4472C4;
+            color: white;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #4472C4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #3a5d9e;
+        }
+
+        .btn-add {
+            margin-top: 15px;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .total-badge {
+            display: inline-block;
+            background: #4472C4;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            th, td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+
+            .tab {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+        }
+
+        /* 快速添加按钮 */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #4472C4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            box-shadow: 0 4px 20px rgba(68, 114, 196, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .fab {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 家庭财务管理系统</h1>
+            <p>随时随地掌握你的财务状况</p>
+        </div>
+
+        <div class="summary-section">
+            <div class="section-title">📊 关键指标汇总</div>
+            <div class="dashboard">
+                <div class="card" onclick="scrollToTab('deposit')">
+                    <div class="card-icon">💵</div>
+                    <div class="card-title">总入金金额</div>
+                    <div class="card-value" id="total-deposit">¥0.00</div>
+                    <div class="card-subtitle">累计资金流入</div>
+                </div>
+
+                <div class="card" onclick="scrollToTab('loan')">
+                    <div class="card-icon">🏦</div>
+                    <div class="card-title">总还款金额</div>
+                    <div class="card-value" id="total-loan">¥0.00</div>
+                    <div class="card-subtitle">贷款累计还款</div>
+                </div>
+
+                <div class="card" onclick="scrollToTab('tax')">
+                    <div class="card-icon">📝</div>
+                    <div class="card-title">总报税金额</div>
+                    <div class="card-value" id="total-tax">¥0.00</div>
+                    <div class="card-subtitle">年度申报收入</div>
+                </div>
+
+                <div class="card" onclick="scrollToTab('tax')">
+                    <div class="card-icon">💸</div>
+                    <div class="card-title">总缴税金额</div>
+                    <div class="card-value" id="total-tax-paid">¥0.00</div>
+                    <div class="card-subtitle">实际缴纳税款</div>
+                </div>
+
+                <div class="card" onclick="scrollToTab('tfsa')">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">免税账户余额</div>
+                    <div class="card-value" id="tfsa-balance">¥0.00</div>
+                    <div class="card-subtitle">TFSA/免税账户</div>
+                </div>
+
+                <div class="card" onclick="scrollToTab('education')">
+                    <div class="card-icon">🎓</div>
+                    <div class="card-title">教育账户余额</div>
+                    <div class="card-value" id="edu-balance">¥0.00</div>
+                    <div class="card-subtitle">教育基金/RESP</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="deposit">账户入金</div>
+                <div class="tab" data-tab="loan">贷款还款</div>
+                <div class="tab" data-tab="tax">报税记录</div>
+                <div class="tab" data-tab="tfsa">免税账户</div>
+                <div class="tab" data-tab="education">教育账户</div>
+                <div class="tab" data-tab="expense">收支跟踪</div>
+            </div>
+
+            <!-- 账户入金 -->
+            <div class="tab-content active" id="deposit">
+                <h3 style="margin-bottom: 15px; color: #4472C4;">📥 账户入金记录</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>入金时间</th>
+                                <th>资金来源</th>
+                                <th>存入银行</th>
+                                <th>入金金额</th>
+                                <th>支撑材料</th>
+                                <th>累计</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deposit-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="deposit-empty">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无入金记录</p>
+                    <p style="font-size: 12px; margin-top: 10px;">点击下方按钮添加第一笔入金</p>
+                </div>
+                <button class="btn btn-add" onclick="addRecord('deposit')">+ 添加入金记录</button>
+            </div>
+
+            <!-- 贷款还款 -->
+            <div class="tab-content" id="loan">
+                <h3 style="margin-bottom: 15px; color: #4472C4;">🏠 贷款还款记录</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>还款类型</th>
+                                <th>还款日期</th>
+                                <th>还款金额</th>
+                                <th>贷款类型</th>
+                                <th>期数</th>
+                                <th>累计</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loan-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="loan-empty">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无还款记录</p>
+                    <p style="font-size: 12px; margin-top: 10px;">点击下方按钮添加还款记录</p>
+                </div>
+                <button class="btn btn-add" onclick="addRecord('loan')">+ 添加还款记录</button>
+            </div>
+
+            <!-- 报税记录 -->
+            <div class="tab-content" id="tax">
+                <h3 style="margin-bottom: 15px; color: #4472C4;">📋 报税记录</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>报税年份</th>
+                                <th>报税日期</th>
+                                <th>申报收入</th>
+                                <th>报税金额</th>
+                                <th>实际缴税</th>
+                                <th>补缴/退税</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tax-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="tax-empty">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无报税记录</p>
+                    <p style="font-size: 12px; margin-top: 10px;">点击下方按钮添加报税记录</p>
+                </div>
+                <button class="btn btn-add" onclick="addRecord('tax')">+ 添加报税记录</button>
+            </div>
+
+            <!-- 免税账户 -->
+            <div class="tab-content" id="tfsa">
+                <h3 style="margin-bottom: 15px; color: #4472C4;">🎯 免税账户管理</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>账户名称</th>
+                                <th>银行名称</th>
+                                <th>账户类型</th>
+                                <th>账户余额</th>
+                                <th>年度收益</th>
+                                <th>剩余额度</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tfsa-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="tfsa-empty">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无免税账户</p>
+                    <p style="font-size: 12px; margin-top: 10px;">点击下方按钮添加免税账户</p>
+                </div>
+                <button class="btn btn-add" onclick="addRecord('tfsa')">+ 添加免税账户</button>
+            </div>
+
+            <!-- 教育账户 -->
+            <div class="tab-content" id="education">
+                <h3 style="margin-bottom: 15px; color: #4472C4;">🎓 教育账户管理</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>学生姓名</th>
+                                <th>账户名称</th>
+                                <th>银行名称</th>
+                                <th>账户余额</th>
+                                <th>年度存入</th>
+                                <th>年度支取</th>
+                            </tr>
+                        </thead>
+                        <tbody id="education-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="education-empty">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无教育账户</p>
+                    <p style="font-size: 12px; margin-top: 10px;">点击下方按钮添加教育账户</p>
+                </div>
+                <button class="btn btn-add" onclick="addRecord('education')">+ 添加教育账户</button>
+            </div>
+
+            <!-- 收支跟踪 -->
+            <div class="tab-content" id="expense">
+                <h3 style="margin-bottom: 15px; color: #4472C4;">💳 收入支出跟踪</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>交易日期</th>
+                                <th>交易类型</th>
+                                <th>收支类别</th>
+                                <th>金额</th>
+                                <th>账户</th>
+                                <th>项目/描述</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expense-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="expense-empty">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无收支记录</p>
+                    <p style="font-size: 12px; margin-top: 10px;">点击下方按钮添加收支记录</p>
+                </div>
+                <button class="btn btn-add" onclick="addRecord('expense')">+ 添加收支记录</button>
+            </div>
+        </div>
+
+        <!-- 快速添加按钮 -->
+        <div class="fab" onclick="showAddMenu()">+</div>
+    </div>
+
+    <script>
+        // 数据存储
+        let financeData = {
+  "deposit": [],
+  "loan": [],
+  "tax": [],
+  "tfsa": [],
+  "education": [],
+  "expense": []
+};
+
+        // 从本地存储加载数据
+        function loadData() {
+            const savedData = localStorage.getItem('financeData');
+            if (savedData) {
+                financeData = JSON.parse(savedData);
+            }
+            renderAll();
+        }
+
+        // 保存数据到本地存储
+        function saveData() {
+            localStorage.setItem('financeData', JSON.stringify(financeData));
+        }
+
+        // 格式化金额
+        function formatMoney(amount) {
+            return '¥' + Number(amount).toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // 渲染所有数据
+        function renderAll() {
+            renderDeposit();
+            renderLoan();
+            renderTax();
+            renderTfsa();
+            renderEducation();
+            renderExpense();
+            updateDashboard();
+        }
+
+        // 渲染入金记录
+        function renderDeposit() {
+            const tbody = document.getElementById('deposit-body');
+            const emptyState = document.getElementById('deposit-empty');
+            tbody.innerHTML = '';
+
+            if (financeData.deposit.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            let cumulative = 0;
+
+            financeData.deposit.forEach((item, index) => {
+                cumulative += Number(item.amount);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.source}</td>
+                    <td>${item.bank}</td>
+                    <td>${formatMoney(item.amount)}</td>
+                    <td>${item.hasDocument ? '✓' : '✗'}</td>
+                    <td style="color: #4472C4; font-weight: bold;">${formatMoney(cumulative)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染贷款记录
+        function renderLoan() {
+            const tbody = document.getElementById('loan-body');
+            const emptyState = document.getElementById('loan-empty');
+            tbody.innerHTML = '';
+
+            if (financeData.loan.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            let cumulative = 0;
+
+            financeData.loan.forEach((item, index) => {
+                cumulative += Number(item.amount);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.type}</td>
+                    <td>${item.date}</td>
+                    <td>${formatMoney(item.amount)}</td>
+                    <td>${item.loanType}</td>
+                    <td>${item.period}</td>
+                    <td style="color: #4472C4; font-weight: bold;">${formatMoney(cumulative)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染报税记录
+        function renderTax() {
+            const tbody = document.getElementById('tax-body');
+            const emptyState = document.getElementById('tax-empty');
+            tbody.innerHTML = '';
+
+            if (financeData.tax.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            financeData.tax.forEach((item, index) => {
+                const diff = Number(item.paidAmount) - Number(item.taxAmount);
+                const diffText = diff > 0 ? `退税 ${formatMoney(diff)}` : `补缴 ${formatMoney(Math.abs(diff))}`;
+                const diffColor = diff > 0 ? 'green' : 'red';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.year}</td>
+                    <td>${item.date}</td>
+                    <td>${formatMoney(item.income)}</td>
+                    <td>${formatMoney(item.taxAmount)}</td>
+                    <td>${formatMoney(item.paidAmount)}</td>
+                    <td style="color: ${diffColor}; font-weight: bold;">${diffText}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染免税账户
+        function renderTfsa() {
+            const tbody = document.getElementById('tfsa-body');
+            const emptyState = document.getElementById('tfsa-empty');
+            tbody.innerHTML = '';
+
+            if (financeData.tfsa.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            financeData.tfsa.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.accountName}</td>
+                    <td>${item.bank}</td>
+                    <td>${item.accountType}</td>
+                    <td>${formatMoney(item.balance)}</td>
+                    <td>${formatMoney(item.annualReturn)}</td>
+                    <td>${formatMoney(item.remaining)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染教育账户
+        function renderEducation() {
+            const tbody = document.getElementById('education-body');
+            const emptyState = document.getElementById('education-empty');
+            tbody.innerHTML = '';
+
+            if (financeData.education.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            financeData.education.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.studentName}</td>
+                    <td>${item.accountName}</td>
+                    <td>${item.bank}</td>
+                    <td>${formatMoney(item.balance)}</td>
+                    <td>${formatMoney(item.annualDeposit)}</td>
+                    <td>${formatMoney(item.annualWithdrawal)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 渲染收支记录
+        function renderExpense() {
+            const tbody = document.getElementById('expense-body');
+            const emptyState = document.getElementById('expense-empty');
+            tbody.innerHTML = '';
+
+            if (financeData.expense.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            financeData.expense.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.type}</td>
+                    <td>${item.category}</td>
+                    <td style="color: ${item.type === '收入' ? 'green' : 'red'}">${formatMoney(item.amount)}</td>
+                    <td>${item.account}</td>
+                    <td>${item.description}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 更新仪表盘
+        function updateDashboard() {
+            let totalDeposit = financeData.deposit.reduce((sum, item) => sum + Number(item.amount), 0);
+            let totalLoan = financeData.loan.reduce((sum, item) => sum + Number(item.amount), 0);
+            let totalTax = financeData.tax.reduce((sum, item) => sum + Number(item.taxAmount), 0);
+            let totalTaxPaid = financeData.tax.reduce((sum, item) => sum + Number(item.paidAmount), 0);
+            let tfsaBalance = financeData.tfsa.reduce((sum, item) => sum + Number(item.balance), 0);
+            let eduBalance = financeData.education.reduce((sum, item) => sum + Number(item.balance), 0);
+
+            document.getElementById('total-deposit').textContent = formatMoney(totalDeposit);
+            document.getElementById('total-loan').textContent = formatMoney(totalLoan);
+            document.getElementById('total-tax').textContent = formatMoney(totalTax);
+            document.getElementById('total-tax-paid').textContent = formatMoney(totalTaxPaid);
+            document.getElementById('tfsa-balance').textContent = formatMoney(tfsaBalance);
+            document.getElementById('edu-balance').textContent = formatMoney(eduBalance);
+        }
+
+        // 标签切换
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                this.classList.add('active');
+                const tabName = this.getAttribute('data-tab');
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
+
+        // 滚动到指定标签
+        function scrollToTab(tabName) {
+            const tab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+            if (tab) {
+                tab.click();
+                document.querySelector('.tab-container').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 添加记录
+        function addRecord(type) {
+            const today = new Date().toISOString().split('T')[0];
+            let record = null;
+
+            switch(type) {
+                case 'deposit':
+                    record = {
+                        date: today,
+                        source: prompt('资金来源（如：工资、投资收益、礼金等）：'),
+                        bank: prompt('存入银行：'),
+                        amount: prompt('入金金额：'),
+                        hasDocument: confirm('是否有支撑材料？')
+                    };
+                    if (record.source && record.bank && record.amount) {
+                        financeData.deposit.push(record);
+                    }
+                    break;
+
+                case 'loan':
+                    record = {
+                        type: prompt('还款类型（大额/月供）：'),
+                        date: today,
+                        amount: prompt('还款金额：'),
+                        loanType: prompt('贷款类型（房贷/车贷/其他）：'),
+                        period: prompt('期数：')
+                    };
+                    if (record.type && record.date && record.amount) {
+                        financeData.loan.push(record);
+                    }
+                    break;
+
+                case 'tax':
+                    record = {
+                        year: prompt('报税年份：'),
+                        date: today,
+                        income: prompt('申报收入：'),
+                        taxAmount: prompt('报税金额：'),
+                        paidAmount: prompt('实际缴税金额：')
+                    };
+                    if (record.year && record.income) {
+                        financeData.tax.push(record);
+                    }
+                    break;
+
+                case 'tfsa':
+                    record = {
+                        accountName: prompt('账户名称：'),
+                        bank: prompt('银行名称：'),
+                        accountType: prompt('账户类型（如TFSA）：'),
+                        balance: prompt('账户余额：'),
+                        annualReturn: prompt('年度投资收益：'),
+                        remaining: prompt('剩余额度：')
+                    };
+                    if (record.accountName && record.bank && record.balance) {
+                        financeData.tfsa.push(record);
+                    }
+                    break;
+
+                case 'education':
+                    record = {
+                        studentName: prompt('学生姓名：'),
+                        accountName: prompt('账户名称：'),
+                        bank: prompt('银行名称：'),
+                        balance: prompt('账户余额：'),
+                        annualDeposit: prompt('年度存入：'),
+                        annualWithdrawal: prompt('年度支取：')
+                    };
+                    if (record.studentName && record.accountName && record.balance) {
+                        financeData.education.push(record);
+                    }
+                    break;
+
+                case 'expense':
+                    record = {
+                        date: today,
+                        type: confirm('收入？取消则为支出') ? '收入' : '支出',
+                        category: prompt('收支类别（如：餐饮、交通、工资等）：'),
+                        amount: prompt('金额：'),
+                        account: prompt('账户：'),
+                        description: prompt('项目/描述：')
+                    };
+                    if (record.category && record.amount) {
+                        financeData.expense.push(record);
+                    }
+                    break;
+            }
+
+            if (record) {
+                saveData();
+                renderAll();
+                alert('添加成功！');
+            }
+        }
+
+        // 显示添加菜单
+        function showAddMenu() {
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+            addRecord(activeTab);
+        }
+
+        // 页面加载时初始化
+        loadData();
+    </script>
+</body>
+</html>
